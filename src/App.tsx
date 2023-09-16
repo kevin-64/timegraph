@@ -1,56 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Graph from './components/Graph/Graph';
-import transform from './engine/ScheduleTransformer';
+import GraphData from './types/GraphData';
+import "react-range-slider-input/dist/style.css";
+import "../public/main.css"
 
-const App = () => {
+import RangeSlider from 'react-range-slider-input';
+
+interface AppProps {
+  graphData: GraphData
+}
+
+const App = ({graphData}: AppProps) => {
+  const [xRange, setXRange] = useState([0, 1440]);
+  const [yRange, setYRange] = useState([0, 100]);
   return (
-    <div>
-      <span>Timegraph</span>
-      <Graph
-        width={1000}
-        height={500}
-        graphData={transform({
-          identifier: 'TO-MI line',
-          stations: new Map([
-            ["Torino PN", 0],
-            ["Torino PS", 0.05],
-            ["Vercelli", 0.35],
-            ["Novara", 0.55],
-            ["Magenta", 0.85],
-            ["Rho Fiera", 0.9],
-            ["Milano C.le",1],
-          ]),
-          inputSchedules: [
-            { identifier: 'RV 2001', calls: [
-              { station: "Torino PN", timeArr: { hh: 5, mm: 30}},
-              { station: "Torino PS", timeArr: { hh: 5, mm: 40}},
-              { station: "Vercelli", timeArr: { hh: 6, mm: 10}},
-              { station: "Novara", timeArr: { hh: 6, mm: 40}},
-              { station: "Magenta", timeArr: { hh: 7, mm: 10}},
-              { station: "Rho Fiera", timeArr: { hh: 7, mm: 20}},
-              { station: "Milano C.le", timeArr: { hh: 7, mm: 30}},
-            ]},
-            { identifier: 'RV 2003', calls: [
-              { station: "Torino PN", timeArr: { hh: 6, mm: 30}},
-              { station: "Torino PS", timeArr: { hh: 6, mm: 40}},
-              { station: "Vercelli", timeArr: { hh: 7, mm: 10}},
-              { station: "Novara", timeArr: { hh: 7, mm: 40}},
-              { station: "Magenta", timeArr: { hh: 8, mm: 10}},
-              { station: "Rho Fiera", timeArr: { hh: 8, mm: 20}},
-              { station: "Milano C.le", timeArr: { hh: 8, mm: 30}},
-            ]},
-            { identifier: 'RV 2000', calls: [
-              { station: "Milano C.le", timeArr: { hh: 5, mm: 20}},
-              { station: "Rho Fiera", timeArr: { hh: 5, mm: 30}},
-              { station: "Magenta", timeArr: { hh: 5, mm: 40}},
-              { station: "Novara", timeArr: { hh: 6, mm: 10}},
-              { station: "Vercelli", timeArr: { hh: 6, mm: 40}},
-              { station: "Torino PS", timeArr: { hh: 7, mm: 10}},
-              { station: "Torino PN", timeArr: { hh: 7, mm: 20}},
-            ]},
-          ],
-        })}
-      />
+    <div className="main-flex-container">
+      <RangeSlider orientation="vertical" min={0} max={100} value={yRange} onInput={setYRange} />
+      <div className="secondary-flex-container">
+        <Graph
+          xLeft={xRange[0]/1440}
+          xRight={xRange[1]/1440}
+          yTop={yRange[0]/100}
+          yBottom={yRange[1]/100}
+          width={1000}
+          height={500}
+          graphData={graphData}
+        />
+        <RangeSlider min={0} max={1440} step={10} value={xRange} onInput={setXRange} />
+      </div>
     </div>
   )
 }

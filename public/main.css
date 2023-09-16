@@ -2,3 +2,21 @@
   padding-top: 20px;
   overflow: visible;
 }
+
+.range-slider {
+  width: 1000px;
+}
+
+.range-slider[data-vertical] {
+  height: 500px;
+}
+
+.main-flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.secondary-flex-container {
+  display: flex;
+  flex-direction: column;
+}
