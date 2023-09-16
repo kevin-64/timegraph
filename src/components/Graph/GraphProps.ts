@@ -1,7 +1,7 @@
-import Line from "../types/Line"
+import GraphData from "../../types/GraphData"
 
 export default interface GraphProps {
   width: number
   height: number
-  lines: Line[]
+  graphData: GraphData
 }
