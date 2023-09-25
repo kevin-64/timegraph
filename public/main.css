@@ -1,8 +1,3 @@
-.chart-container {
-  padding-top: 20px;
-  overflow: visible;
-}
-
 .range-slider {
   width: 1000px;
 }
@@ -19,4 +14,13 @@
 .secondary-flex-container {
   display: flex;
   flex-direction: column;
+}
+
+.zoom-mode-container {
+  margin-top: 20px;
+}
+
+.VictoryContainer {
+  user-select: none;
+  -webkit-user-select: none;
 }
