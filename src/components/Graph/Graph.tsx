@@ -89,12 +89,12 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
     <>
       <Tooltip x={tooltipX} y={tooltipY} visible={showTooltip} content={tooltipContent} />
       <VictoryChart domain={{x: [xLeft, xRight], y: [yBottom, yTop]}} theme={GraphTheme} width={width} height={height} containerComponent={<VictoryContainer responsive={false}/>} events={[{
-        target: 'parent',
-        eventKey: 'all',
-        eventHandlers: {
-          onMouseDown: startZoomBox,
-          onMouseUp: endZoomBox,
-          onMouseMove: adjustZoomBox,
+      target: 'parent',
+      eventKey: 'all',
+      eventHandlers: {
+      onMouseDown: startZoomBox,
+      onMouseUp: endZoomBox,
+      onMouseMove: adjustZoomBox,
           onMouseLeave: abortZoomBox
         }
       }]}>
@@ -135,31 +135,28 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
           data={line.points}
           style={{data: { stroke: line.color }}}
           name={line.name} key={`line${index}`} 
-          // onMouseEnter={(_, e) => {
-          //   setTooltipX(e.clientX + 10);
-          //                       setTooltipY(e.clientY + 10);
-          //                       setTooltipContent(line.name);
-          //                       setShowTooltip(true);
-          //                     }}
-          //                     onMouseLeave={() => {
-          //                       setTimeout(() => {
-          //                         setTooltipX(0);
-          //                         setTooltipX(0);
-          //                         setTooltipContent('');
-          //                         setShowTooltip(false);
-          //                       }, 200);
-          //                     }}
-                              />
-          )}
-          <VictoryLine 
           events={[{
-            target: 'parent',
+            target: 'data',
             eventKey: 'all',
             eventHandlers: {
-              onClick: (e: any, x: any) => console.log(e, x),
-            }
+              onMouseEnter: (e: any) => {
+                setTooltipX(e.clientX + 10);
+                setTooltipY(e.clientY + 10);
+                setTooltipContent(line.name);
+                setShowTooltip(true);
+              },
+              onMouseLeave: () => {
+                setTimeout(() => {
+                  setTooltipX(0);
+                  setTooltipX(0);
+                  setTooltipContent('');
+                  setShowTooltip(false);
+                }, 200);
+              }}
           }]}
-          
+
+          />)}
+          <VictoryLine 
           data={[{x: 0, y: 0}, {x:1, y:1}]} 
           style={{data: { stroke: 'transparent', opacity: 0.1234, strokeWidth: 0.5678 }} as any} 
           key="myline" />

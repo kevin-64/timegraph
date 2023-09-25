@@ -15,10 +15,6 @@ const App = ({graphData}: AppProps) => {
   const [yRange, setYRange] = useState([0, 100]);
   const [zoomModeActive, setZoomModeActive] = useState(false);
 
-  useEffect(() => {
-    console.log(yRange)
-  }, [yRange]);
-
   const resetZoom = () => {
     setXRange([0, 1440])
     setYRange([0, 100])
