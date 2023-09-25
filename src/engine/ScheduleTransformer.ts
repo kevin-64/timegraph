@@ -1,8 +1,36 @@
 import GraphData from "../types/GraphData";
 import GraphStation from "../types/GraphStation";
+import InputSchedule from "../types/InputSchedule";
 import Line from "../types/Line";
 import Schedule from "../types/Schedule";
-import scaleTime from './TimestampTransformer';
+import SchedulePoint from "../types/SchedulePoint";
+import Timestamp from "../types/Timestamp";
+import scaleTime, { diff, sum } from './TimestampTransformer';
+
+const offsetSchedulePoints = (points: SchedulePoint[], amount: Timestamp): SchedulePoint[] => {
+  return points.map(pt => { return { ...pt, timeArr: sum(pt.timeArr, amount)}})
+}
+
+const moveScheduleTo = (points: SchedulePoint[], newDeparture: Timestamp): SchedulePoint[] => {
+  const offset = diff(newDeparture, points[0].timeArr)
+  return offsetSchedulePoints(points, offset)
+}
+
+const transformInputSchedule = (sch: InputSchedule, stations: GraphStation[]) => {
+  const points = sch.calls.map(call => {
+    return {
+      x: scaleTime(call.timeArr), //TODO: handle stops
+      y: stations.find(s => s.identifier === call.station)!.relativePosition
+    }
+  })
+
+  return {
+    //TODO: support formatted identifier
+    name: `${sch.category} ${sch.number}`,
+    points,
+    color: '#000000' //TODO: support line colors
+  }
+}
 
 const transform = (schedule: Schedule): GraphData => {
   const actualStations = new Set(schedule.inputSchedules.flatMap(is => is.calls.flatMap(c => c.station)));
@@ -24,20 +52,31 @@ const transform = (schedule: Schedule): GraphData => {
   })
 
   //convert lines to x/y notation
-  const lines: Line[] = schedule.inputSchedules.map(sch => {
-    const points = sch.calls.map(call => {
-      return {
-        x: scaleTime(call.timeArr), //TODO: handle stops
-        y: stationSeries.find(s => s.identifier === call.station)!.relativePosition
-      }
-    })
+  const lines: Line[] = schedule.inputSchedules.flatMap(sch => {
+    const scheduleLines: Line[] = []
+    if (sch.repeat) {
+      let departures: Timestamp[] = [] 
 
-    return {
-      name: sch.identifier,
-      points,
-      color: '#000000' //TODO: support line colors
+      if (sch.repeat.at) {
+        departures = [sch.calls[0].timeArr, ...sch.repeat.at]
+      } else if (sch.repeat.every) {
+        //TODO: support indefinite number of repetitions
+      } else {
+        throw new Error(`Invalid schedule repetition: ${JSON.stringify(sch.repeat)}`)
+      }
+
+      departures.forEach((inst, index) => {
+        const newSch = {...sch, number: sch.number + (sch.repeat!.numberOffset * index)}
+        newSch.calls = moveScheduleTo(newSch.calls, inst)
+        scheduleLines.push(transformInputSchedule(newSch, stationSeries))
+      })
+    } else {
+      scheduleLines.push(transformInputSchedule(sch, stationSeries))
     }
+    return scheduleLines
   }) 
+
+  console.log(lines)
 
   return {
     stationSeries,
