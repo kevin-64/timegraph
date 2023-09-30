@@ -24,9 +24,13 @@ const transformInputSchedule = (sch: InputSchedule, stations: GraphStation[]) =>
     }
   })
 
+  //any property of the schedule can be used in the identifier, in an interpolation-like syntax;
+  //e.g. "{category} {number}" will be replaced with the real category and number of the schedule
+  const scheduleName = sch.identifier.replace(/(\{[a-z][a-zA-Z]*\})/g, 
+                          (group: string) => (sch as any)[group.replace(/\{|\}/g, '')].toString())
+
   return {
-    //TODO: support formatted identifier
-    name: `${sch.category} ${sch.number}`,
+    name: scheduleName,
     points,
     color: '#000000' //TODO: support line colors
   }

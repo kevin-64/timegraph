@@ -1,1 +1,2 @@
 - Support for multiple zoom
+- Add more tests for utils, transformer and identifier interpolation
