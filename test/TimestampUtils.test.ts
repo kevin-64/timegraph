@@ -1,4 +1,4 @@
-import { sum, diff } from "../src/engine/TimestampTransformer"
+import { sum, diff } from "../src/engine/TimestampUtils"
 
 describe('TimestampTransformer', () => {
   test('should add two times together', () => {

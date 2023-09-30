@@ -41,5 +41,10 @@ const diff = (lhs: Timestamp, rhs: Timestamp): Timestamp => {
   return toTimestamp(left - right)
 }
 
-export default transform
-export { sum, diff }
+const isBefore = (lhs: Timestamp, rhs: Timestamp): boolean => {
+  const left = toSeconds(lhs)
+  const right = toSeconds(rhs)
+  return left < right;
+}
+
+export { transform, sum, diff, isBefore }

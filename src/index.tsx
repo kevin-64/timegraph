@@ -32,13 +32,10 @@ const inputGraphData = transform({
         { station: "Milano C.le", timeArr: { hh: 7, mm: 30}},
       ],
       repeat: {
-        at: [{hh: 6, mm: 30},{hh: 7, mm: 30},{hh: 8, mm: 30},{hh: 10, mm: 30},{hh: 14, mm: 30}],
+        every: { hh: 1 },
+        last: { hh: 21, mm: 30 },
         numberOffset: 2
       }
-      // repeat: {
-      //   every: { hh: 1 },
-      //   last: { hh: 22, mm: 30 }
-      // }
     },
     { 
       identifier: '{category} {number}', 
@@ -52,7 +49,13 @@ const inputGraphData = transform({
       { station: "Vercelli", timeArr: { hh: 6, mm: 40}},
       { station: "Torino PS", timeArr: { hh: 7, mm: 10}},
       { station: "Torino PN", timeArr: { hh: 7, mm: 20}},
-    ]},
+    ],
+    repeat: {
+      every: { hh: 1 },
+      last: { hh: 21, mm: 30 },
+      numberOffset: 2
+    }
+  },
   ],
 })
 

@@ -5,7 +5,7 @@ import Line from "../types/Line";
 import Schedule from "../types/Schedule";
 import SchedulePoint from "../types/SchedulePoint";
 import Timestamp from "../types/Timestamp";
-import scaleTime, { diff, sum } from './TimestampTransformer';
+import { transform as scaleTime, diff, sum, isBefore } from './TimestampUtils';
 
 const offsetSchedulePoints = (points: SchedulePoint[], amount: Timestamp): SchedulePoint[] => {
   return points.map(pt => { return { ...pt, timeArr: sum(pt.timeArr, amount)}})
@@ -60,7 +60,20 @@ const transform = (schedule: Schedule): GraphData => {
       if (sch.repeat.at) {
         departures = [sch.calls[0].timeArr, ...sch.repeat.at]
       } else if (sch.repeat.every) {
-        //TODO: support indefinite number of repetitions
+        let nextDeparture = sch.calls[0].timeArr
+        let count = 0;
+
+        //whichever condition is used to limit the number of repetitions
+        //(max number or latest departure time) is called after every new schedule
+        const moreDepartures = sch.repeat.last 
+          ? (dep: Timestamp, _: number) => isBefore(dep, sch.repeat!.last!)
+          : (_: Timestamp, count: number) => count < sch.repeat!.max!
+
+        while (moreDepartures(nextDeparture, count)) {
+          departures.push(nextDeparture)
+          nextDeparture = sum(nextDeparture, sch.repeat.every)
+          count++
+        }
       } else {
         throw new Error(`Invalid schedule repetition: ${JSON.stringify(sch.repeat)}`)
       }
