@@ -8,19 +8,42 @@ import Timestamp from "../types/Timestamp";
 import { transform as scaleTime, diff, sum, isBefore } from './TimestampUtils';
 
 const offsetSchedulePoints = (points: SchedulePoint[], amount: Timestamp): SchedulePoint[] => {
-  return points.map(pt => { return { ...pt, timeArr: sum(pt.timeArr, amount)}})
+  return points.map(pt => { 
+    return { 
+      ...pt,
+      ...(pt.timeArr && {timeArr: sum(pt.timeArr!, amount)}),
+      ...(pt.timeDep && {timeDep: sum(pt.timeDep!, amount)}),
+    }
+  })
 }
 
 const moveScheduleTo = (points: SchedulePoint[], newDeparture: Timestamp): SchedulePoint[] => {
-  const offset = diff(newDeparture, points[0].timeArr)
+  const offset = diff(newDeparture, points[0].timeDep!)
   return offsetSchedulePoints(points, offset)
 }
 
 const transformInputSchedule = (sch: InputSchedule, stations: GraphStation[]) => {
-  const points = sch.calls.map(call => {
-    return {
-      x: scaleTime(call.timeArr), //TODO: handle stops
-      y: stations.find(s => s.identifier === call.station)!.relativePosition
+  const points = sch.calls.flatMap(call => {
+    const stationY = stations.find(s => s.identifier === call.station)!.relativePosition
+
+    if (call.timeArr && call.timeDep) {
+      //station stop
+      return [
+        {
+          x: scaleTime(call.timeArr!),
+          y: stationY
+        },
+        {
+          x: scaleTime(call.timeDep!),
+          y: stationY
+        }
+      ]
+    } else {
+      //station pass/departure
+      return {
+        x: scaleTime((call.timeArr || call.timeDep)!),
+        y: stationY
+      }
     }
   })
 
@@ -62,9 +85,9 @@ const transform = (schedule: Schedule): GraphData => {
       let departures: Timestamp[] = [] 
 
       if (sch.repeat.at) {
-        departures = [sch.calls[0].timeArr, ...sch.repeat.at]
+        departures = [sch.calls[0].timeDep!, ...sch.repeat.at]
       } else if (sch.repeat.every) {
-        let nextDeparture = sch.calls[0].timeArr
+        let nextDeparture = sch.calls[0].timeDep!
         let count = 0;
 
         //whichever condition is used to limit the number of repetitions

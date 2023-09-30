@@ -1,7 +1,7 @@
 import Timestamp from "./Timestamp"
 
 export default interface SchedulePoint {
-  timeArr: Timestamp
+  timeArr?: Timestamp
   timeDep?: Timestamp
   station: string
 }
