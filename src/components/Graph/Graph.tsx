@@ -87,7 +87,7 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
 
   return (
     <>
-      <Tooltip x={tooltipX} y={tooltipY} visible={showTooltip} content={tooltipContent} />
+      {!zoomModeActive && <Tooltip x={tooltipX} y={tooltipY} visible={showTooltip} content={tooltipContent} /> }
       <VictoryChart domain={{x: [xLeft, xRight], y: [yBottom, yTop]}} theme={GraphTheme} width={width} height={height} containerComponent={<VictoryContainer responsive={false}/>} events={[{
       target: 'parent',
       eventKey: 'all',
