@@ -6,7 +6,7 @@ import Point from "../types/Point";
 import Schedule from "../types/Schedule";
 import SchedulePoint from "../types/SchedulePoint";
 import Timestamp from "../types/Timestamp";
-import VisualizationOptions from "../types/VisualizationOptions";
+import VisualizationOptions, { VisualizationRangeStyle, VisualizationStyleMap } from "../types/VisualizationOptions";
 import { transform as scaleTime, diff, sum, isBefore } from './TimestampUtils';
 
 const offsetSchedulePoints = (points: SchedulePoint[], amount: Timestamp): SchedulePoint[] => {
@@ -60,7 +60,7 @@ const transformInputSchedule = (sch: InputSchedule,
     return [{
       name: scheduleName,
       points,
-      color: '#000000' //TODO: support line colors
+      color: '#000000'
     }]
   }
 
@@ -119,7 +119,7 @@ const transform = (schedule: Schedule): GraphData => {
         scheduleLines.push(...transformInputSchedule(newSch, stationSeries, schedule.visualize))
       })
     } else {
-      scheduleLines.push(...transformInputSchedule(sch, stationSeries))
+      scheduleLines.push(...transformInputSchedule(sch, stationSeries, schedule.visualize))
     }
     return scheduleLines
   }) 
@@ -132,9 +132,9 @@ const transform = (schedule: Schedule): GraphData => {
   }
 }
 
-const getLinesWithStyle = (sch: InputSchedule, name: string, points: Point[], visualizationOptions: VisualizationOptions): Line[] => {
+const getLinesWithStyle = (schedule: InputSchedule, name: string, points: Point[], visualizationOptions: VisualizationOptions): Line[] => {
   if (visualizationOptions.on === "schedule") {
-    const lineStyle = visualizationOptions.style[(sch as any)[visualizationOptions.property]]
+    const lineStyle = (visualizationOptions.style as VisualizationStyleMap)[(schedule as any)[visualizationOptions.property]]
     return [
       {
         name,
@@ -145,8 +145,74 @@ const getLinesWithStyle = (sch: InputSchedule, name: string, points: Point[], vi
       }
     ]
   } else {
-    //TODO: implement per-call style
-    throw new Error()
+    //calculate value per call
+    //at each call, if the value changes, commit old line and create a new line
+    //at the end, commit the last line
+    const lines : Line[] = []
+    let allPoints: Point[] = []
+    let lastVizPropValue: any = undefined
+    let lastVizStyle
+    let lineStyle
+    const isRanged = !!visualizationOptions.style.length
+    
+    let pointIndex = 0
+    schedule.calls.forEach((call) => {
+      let newVizValue: any
+      
+      if (isRanged) {
+        const propValue = (call as any)[visualizationOptions.property] as number
+        console.log(propValue)
+        ;(visualizationOptions.style as VisualizationRangeStyle[]).forEach(range => {
+          if (propValue >= range.min && propValue <= range.max) {
+            newVizValue = range
+          }
+        })
+      } else {
+        newVizValue = (call as any)[visualizationOptions.property]
+      }
+
+      if (!lastVizPropValue) {
+        lastVizPropValue = newVizValue
+        lastVizStyle = newVizValue.style
+      } else if (lastVizPropValue !== newVizValue) {
+      
+        lineStyle = isRanged ? lastVizStyle! : (visualizationOptions.style as VisualizationStyleMap)[lastVizPropValue]
+        const lineSoFar = {
+          name,
+          key: `${name}-${pointIndex}`,
+          points: [...allPoints],
+          color: lineStyle.color!,
+          thickness: lineStyle.strokeThickness,
+          strokeDashes: lineStyle.strokeDashes
+        }
+        lines.push(lineSoFar)
+
+        allPoints = allPoints.slice(-1)
+        lastVizPropValue = newVizValue
+        lastVizStyle = newVizValue.style
+      }
+
+      allPoints.push(points[pointIndex])
+
+      //for stops, push both points at the same time
+      if (pointIndex + 1 < points.length && points[pointIndex + 1].y === points[pointIndex].y) {
+        allPoints.push(points[pointIndex + 1])
+        pointIndex++
+      }
+      pointIndex++
+    })
+
+    lines.push({
+      name,
+      key: `${name}-${points.length}`,
+      points: [...allPoints],
+      color: lastVizStyle!.color!,
+      thickness: lastVizStyle!.strokeThickness,
+      strokeDashes: lastVizStyle!.strokeDashes
+    })
+
+    console.log(lines)
+    return lines
   }
 }
 

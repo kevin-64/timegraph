@@ -5,11 +5,17 @@ interface VisualizationStyleMap {
   [value: string]: VisualizationStyle
 }
 
+interface VisualizationRangeStyle {
+  min: number
+  max: number
+  style: VisualizationStyle
+}
+
 export default interface VisualizationOptions {
   property: string
   on: "schedule" | "call",
   aggregate?: AggregateType,
-  style: VisualizationStyleMap
+  style: VisualizationStyleMap | VisualizationRangeStyle[]
 }
 
-export { VisualizationStyleMap }
+export { VisualizationStyleMap, VisualizationRangeStyle }
