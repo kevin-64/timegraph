@@ -63,11 +63,11 @@ const inputGraphData = transform({
         { station: "Rho Fiera", timeArr: { hh: 6, mm: 32}, timeDep: { hh: 6, mm: 33 }, delay: 12},
         { station: "Milano C.le", timeArr: { hh: 6, mm: 45}, delay: 7},
       ],
-      // repeat: {
-      //   every: { hh: 1 },
-      //   last: { hh: 21, mm: 30 },
-      //   numberOffset: 2
-      // }
+      repeat: {
+        every: { hh: 1 },
+        last: { hh: 21, mm: 30 },
+        numberOffset: 2
+      }
     },
     { 
       identifier: '{category} {number}', 
@@ -84,11 +84,11 @@ const inputGraphData = transform({
       { station: "Torino PS", timeArr: { hh: 7, mm: 54}, timeDep: { hh: 7, mm: 55 }, delay: 10},
       { station: "Torino PN", timeArr: { hh: 8, mm: 5}, delay: 7},
     ],
-    // repeat: {
-    //   every: { hh: 1 },
-    //   last: { hh: 22, mm: 30 },
-    //   numberOffset: 2
-    // }
+    repeat: {
+      every: { hh: 1 },
+      last: { hh: 22, mm: 30 },
+      numberOffset: 2
+    }
   },
   ],
 })
