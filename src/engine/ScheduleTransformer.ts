@@ -2,9 +2,11 @@ import GraphData from "../types/GraphData";
 import GraphStation from "../types/GraphStation";
 import InputSchedule from "../types/InputSchedule";
 import Line from "../types/Line";
+import Point from "../types/Point";
 import Schedule from "../types/Schedule";
 import SchedulePoint from "../types/SchedulePoint";
 import Timestamp from "../types/Timestamp";
+import VisualizationOptions from "../types/VisualizationOptions";
 import { transform as scaleTime, diff, sum, isBefore } from './TimestampUtils';
 
 const offsetSchedulePoints = (points: SchedulePoint[], amount: Timestamp): SchedulePoint[] => {
@@ -22,7 +24,9 @@ const moveScheduleTo = (points: SchedulePoint[], newDeparture: Timestamp): Sched
   return offsetSchedulePoints(points, offset)
 }
 
-const transformInputSchedule = (sch: InputSchedule, stations: GraphStation[]) => {
+const transformInputSchedule = (sch: InputSchedule, 
+                                stations: GraphStation[],
+                                visualizationOptions?: VisualizationOptions): Line[] => {
   const points = sch.calls.flatMap(call => {
     const stationY = stations.find(s => s.identifier === call.station)!.relativePosition
 
@@ -51,12 +55,16 @@ const transformInputSchedule = (sch: InputSchedule, stations: GraphStation[]) =>
   //e.g. "{category} {number}" will be replaced with the real category and number of the schedule
   const scheduleName = sch.identifier.replace(/(\{[a-z][a-zA-Z]*\})/g, 
                           (group: string) => (sch as any)[group.replace(/\{|\}/g, '')].toString())
-
-  return {
-    name: scheduleName,
-    points,
-    color: '#000000' //TODO: support line colors
+          
+  if (!visualizationOptions) {
+    return [{
+      name: scheduleName,
+      points,
+      color: '#000000' //TODO: support line colors
+    }]
   }
+
+  return getLinesWithStyle(sch, scheduleName, points, visualizationOptions)
 }
 
 const transform = (schedule: Schedule): GraphData => {
@@ -108,10 +116,10 @@ const transform = (schedule: Schedule): GraphData => {
       departures.forEach((inst, index) => {
         const newSch = {...sch, number: sch.number + (sch.repeat!.numberOffset * index)}
         newSch.calls = moveScheduleTo(newSch.calls, inst)
-        scheduleLines.push(transformInputSchedule(newSch, stationSeries))
+        scheduleLines.push(...transformInputSchedule(newSch, stationSeries, schedule.visualize))
       })
     } else {
-      scheduleLines.push(transformInputSchedule(sch, stationSeries))
+      scheduleLines.push(...transformInputSchedule(sch, stationSeries))
     }
     return scheduleLines
   }) 
@@ -121,6 +129,24 @@ const transform = (schedule: Schedule): GraphData => {
   return {
     stationSeries,
     lines
+  }
+}
+
+const getLinesWithStyle = (sch: InputSchedule, name: string, points: Point[], visualizationOptions: VisualizationOptions): Line[] => {
+  if (visualizationOptions.on === "schedule") {
+    const lineStyle = visualizationOptions.style[(sch as any)[visualizationOptions.property]]
+    return [
+      {
+        name,
+        points,
+        color: lineStyle.color!,
+        thickness: lineStyle.strokeThickness,
+        strokeDashes: lineStyle.strokeDashes
+      }
+    ]
+  } else {
+    //TODO: implement per-call style
+    throw new Error()
   }
 }
 

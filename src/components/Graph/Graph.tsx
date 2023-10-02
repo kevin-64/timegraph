@@ -133,7 +133,7 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
         {graphData.lines.map(
           (line, index) => <VictoryLine
           data={line.points}
-          style={{data: { stroke: line.color }}}
+          style={{data: { stroke: line.color, strokeWidth: line.thickness || 1,  strokeDasharray: line.strokeDashes }}}
           name={line.name} key={`line${index}`} 
           events={[{
             target: 'data',

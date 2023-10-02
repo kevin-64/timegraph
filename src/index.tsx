@@ -19,6 +19,16 @@ const inputGraphData = transform({
     ["Rho Fiera", 0.9],
     ["Milano C.le",1],
   ]),
+  visualize : {
+    property: 'category',
+    on: "schedule",
+    style: {
+      'RV': {
+        color: 'green',
+        strokeThickness: 2,
+      }
+    }
+  },
   inputSchedules: [
     { 
       identifier: '{category} {number}',
