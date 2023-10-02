@@ -1,2 +1,3 @@
-- Support for multiple zoom
+- Support for scrolling with mouse inside graph
+- Support for multiple zoom (zoom again)
 - Add more tests for utils, transformer and identifier interpolation

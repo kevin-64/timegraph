@@ -13,7 +13,7 @@
     "victory": "^36.6.11"
   },
   "scripts": {
-    "start": "webpack serve --hot --open",
+    "start": "webpack serve --hot --open --no-client-overlay",
     "test": "jest"
   },
   "devDependencies": {

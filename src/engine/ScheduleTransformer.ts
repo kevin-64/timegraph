@@ -124,8 +124,6 @@ const transform = (schedule: Schedule): GraphData => {
     return scheduleLines
   }) 
 
-  console.log(lines)
-
   return {
     stationSeries,
     lines
@@ -161,7 +159,6 @@ const getLinesWithStyle = (schedule: InputSchedule, name: string, points: Point[
       
       if (isRanged) {
         const propValue = (call as any)[visualizationOptions.property] as number
-        console.log(propValue)
         ;(visualizationOptions.style as VisualizationRangeStyle[]).forEach(range => {
           if (propValue >= range.min && propValue <= range.max) {
             newVizValue = range
@@ -211,7 +208,6 @@ const getLinesWithStyle = (schedule: InputSchedule, name: string, points: Point[
       strokeDashes: lastVizStyle!.strokeDashes
     })
 
-    console.log(lines)
     return lines
   }
 }

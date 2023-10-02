@@ -42,6 +42,13 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
   const startZoomBox = (e: any) => {
     if (!zoomModeActive) return;
 
+    if (e.button === 2) {
+      //right click resets zoom
+      setXRange([0, 1440])
+      setYRange([0, 100])
+      return;
+    }
+
     const actualX = convertX(e.clientX)
     const actualY = convertY(e.clientY)
 
@@ -54,7 +61,7 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
 
   //hides the zoom box and applies the corresponding zoom to the graph
   const endZoomBox = () => {
-    if (!zoomModeActive) return;
+    if (!zoomModeActive || !showZoomBox) return;
 
     const minX = Math.min(x1, x2);
     const maxX = Math.max(x1, x2);
@@ -69,7 +76,7 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
 
   //continuously redraws the zoom box at the coordinates where the mouse is dragged to
   const adjustZoomBox = (e: any) => {
-    if (!zoomModeActive || !showZoomBox) return;
+    if (!zoomModeActive || !showZoomBox || e.button === 2) return;
 
     const actualX = convertX(e.clientX)
     const actualY = convertY(e.clientY)
@@ -92,6 +99,7 @@ const Graph = ({width, height, graphData, xLeft, xRight, yTop, yBottom, zoomMode
       target: 'parent',
       eventKey: 'all',
       eventHandlers: {
+      onContextMenu: (e) => { e.preventDefault(); return false},
       onMouseDown: startZoomBox,
       onMouseUp: endZoomBox,
       onMouseMove: adjustZoomBox,
